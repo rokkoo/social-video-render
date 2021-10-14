@@ -11,41 +11,38 @@ import {
 	renderFrames,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
-import express from 'express';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import cron from 'node-cron';
+import {random} from 'remotion';
 
-const app = express();
-const port = process.env.PORT || 8000;
 const compositionId = 'HelloWorld';
 
-const cache = new Map<string, string>();
-
-app.get('/', async (req, res) => {
-	const sendFile = (file: string) => {
-		fs.createReadStream(file)
-			.pipe(res)
-			.on('close', () => {
-				res.end();
-			});
-	};
+// Every 30s, we'll render a new video.
+cron.schedule('*/30 * * * * *', async () => {
 	try {
-		if (cache.get(JSON.stringify(req.query))) {
-			sendFile(cache.get(JSON.stringify(req.query)) as string);
-			return;
-		}
+		console.log('crooon');
+		const params = {titleText: 'Hello, World', titleColor: 'yellow'};
+
+		const randomColor = '#' + Math.floor(random(null) * 16777215).toString(16);
+
+		console.log('randomColor', randomColor);
+
+		params.titleColor = randomColor;
+
 		const bundled = await bundle(path.join(__dirname, './src/index.tsx'));
-		const comps = await getCompositions(bundled, {inputProps: req.query});
+		const comps = await getCompositions(bundled, {inputProps: params});
 		const video = comps.find((c) => c.id === compositionId);
+
 		if (!video) {
 			throw new Error(`No video called ${compositionId}`);
 		}
-		res.set('content-type', 'video/mp4');
 
 		const tmpDir = await fs.promises.mkdtemp(
 			path.join(os.tmpdir(), 'remotion-')
 		);
+
 		const {assetsInfo} = await renderFrames({
 			config: video,
 			webpackBundle: bundled,
@@ -57,12 +54,13 @@ app.get('/', async (req, res) => {
 			},
 			parallelism: null,
 			outputDir: tmpDir,
-			inputProps: req.query,
+			inputProps: params,
 			compositionId,
 			imageFormat: 'jpeg',
 		});
 
-		const finalOutput = path.join(tmpDir, 'out.mp4');
+		const finalOutput = path.join(__dirname, 'out.mp4');
+
 		await stitchFramesToVideo({
 			dir: tmpDir,
 			force: true,
@@ -73,27 +71,11 @@ app.get('/', async (req, res) => {
 			imageFormat: 'jpeg',
 			assetsInfo,
 		});
-		cache.set(JSON.stringify(req.query), finalOutput);
-		sendFile(finalOutput);
-		console.log('Video rendered and sent!');
+
+		console.log({finalOutput});
+
+		console.log('Video rendered!');
 	} catch (err) {
 		console.error(err);
-		res.json({
-			error: err,
-		});
 	}
 });
-
-app.listen(port);
-
-console.log(
-	[
-		`The server has started on http://localhost:${port}!`,
-		'You can render a video by passing props as URL parameters.',
-		'',
-		'If you are running Hello World, try this:',
-		'',
-		`http://localhost:${port}?titleText=Hello,+World!&titleColor=red`,
-		'',
-	].join('\n')
-);
