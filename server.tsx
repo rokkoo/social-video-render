@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 /**
  * This is an example of a server that returns dynamic video.
  * Run `npm run server` to try it out!
@@ -16,15 +18,18 @@ import os from 'os';
 import path from 'path';
 import cron from 'node-cron';
 import {random} from 'remotion';
+
 // @ts-ignore
 import Instagram from 'instagram-web-api';
 // @ts-ignore
 import FileCookieStore from 'tough-cookie-filestore2';
 
+require('dotenv').config();
+
 const compositionId = 'HelloWorld';
 
 // Every 30s, we'll render a new video.
-cron.schedule('*/30 * * * * *', async () => {
+cron.schedule('*/60 * * * * *', async () => {
 	try {
 		console.log('crooon');
 		const cookieStore = new FileCookieStore('./cookies.json');
@@ -76,7 +81,7 @@ cron.schedule('*/30 * * * * *', async () => {
 			imageFormat: 'jpeg',
 		});
 
-		const finalOutput = path.join(__dirname, 'out.mp4');
+		const finalOutput = path.join(__dirname, 'out.png');
 
 		await stitchFramesToVideo({
 			dir: tmpDir,
@@ -96,7 +101,11 @@ cron.schedule('*/30 * * * * *', async () => {
 		console.log('Uploading to instagram');
 
 		const instagramPostFunction = async () => {
-			await client.upl;
+			await client.uploadPhoto({
+				photo: finalOutput,
+				caption: 'Tiempo Irun',
+				post: 'feed',
+			});
 		};
 
 		// Loging on instagram
@@ -104,7 +113,7 @@ cron.schedule('*/30 * * * * *', async () => {
 			.login()
 			.then(() => {
 				console.log('Login successful!');
-				instagramPostFunction(client);
+				instagramPostFunction();
 			})
 			.catch(async (err: Error) => {
 				console.log('Login failed!');
@@ -126,6 +135,17 @@ cron.schedule('*/30 * * * * *', async () => {
 						language: 'en-US',
 					}
 				);
+
+				newClient
+					.login()
+					.then(() => {
+						console.log('Login successful!');
+						instagramPostFunction();
+					})
+					.catch((err: Error) => {
+						console.log('Login failed!');
+						console.log(err);
+					});
 			});
 	} catch (err) {
 		console.error(err);
