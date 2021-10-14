@@ -16,6 +16,10 @@ import os from 'os';
 import path from 'path';
 import cron from 'node-cron';
 import {random} from 'remotion';
+// @ts-ignore
+import Instagram from 'instagram-web-api';
+// @ts-ignore
+import FileCookieStore from 'tough-cookie-filestore2';
 
 const compositionId = 'HelloWorld';
 
@@ -23,6 +27,19 @@ const compositionId = 'HelloWorld';
 cron.schedule('*/30 * * * * *', async () => {
 	try {
 		console.log('crooon');
+		const cookieStore = new FileCookieStore('./cookies.json');
+
+		const client = new Instagram(
+			{
+				username: process.env.INSTAGRAM_USERNAME,
+				password: process.env.INSTAGRAM_PASSWORD,
+				cookieStore,
+			},
+			{
+				language: 'en-US',
+			}
+		);
+
 		const params = {titleText: 'Hello, World', titleColor: 'yellow'};
 
 		const randomColor = '#' + Math.floor(random(null) * 16777215).toString(16);
@@ -75,6 +92,41 @@ cron.schedule('*/30 * * * * *', async () => {
 		console.log({finalOutput});
 
 		console.log('Video rendered!');
+
+		console.log('Uploading to instagram');
+
+		const instagramPostFunction = async () => {
+			await client.upl;
+		};
+
+		// Loging on instagram
+		await client
+			.login()
+			.then(() => {
+				console.log('Login successful!');
+				instagramPostFunction(client);
+			})
+			.catch(async (err: Error) => {
+				console.log('Login failed!');
+				console.log(err);
+
+				console.log(
+					'Deleting cookies, waiting 2 minutes, then logging in again and setting new cookie store'
+				);
+				fs.unlinkSync('./cookies.json');
+				const newCookieStore = new FileCookieStore('./cookies.json');
+
+				const newClient = new Instagram(
+					{
+						username: process.env.INSTAGRAM_USERNAME,
+						password: process.env.INSTAGRAM_PASSWORD,
+						cookieStore: newCookieStore,
+					},
+					{
+						language: 'en-US',
+					}
+				);
+			});
 	} catch (err) {
 		console.error(err);
 	}
