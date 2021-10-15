@@ -1,6 +1,7 @@
 import {Composition} from 'remotion';
 import {HelloWorld} from './HelloWorld';
-import {Logo} from './HelloWorld/Logo';
+import Header from './HelloWorld/Header';
+import BackGround from './HelloWorld/BackGround';
 import {Subtitle} from './HelloWorld/Subtitle';
 import {Title} from './HelloWorld/Title';
 
@@ -20,20 +21,32 @@ export const RemotionVideo: React.FC = (props) => {
 				}}
 			/>
 			<Composition
-				id="Logo"
-				component={Logo}
+				id="BackGround"
+				component={BackGround}
 				durationInFrames={200}
 				fps={30}
-				width={1920}
-				height={1080}
+				width={1080}
+				height={1920}
+			/>
+			<Composition
+				id="Header"
+				component={Header}
+				durationInFrames={100}
+				fps={30}
+				width={1080}
+				height={1920}
+				defaultProps={{
+					titleText: 'test',
+					titleColor: 'black',
+				}}
 			/>
 			<Composition
 				id="Title"
 				component={Title}
 				durationInFrames={100}
 				fps={30}
-				width={1920}
-				height={1080}
+				width={1080}
+				height={1920}
 				defaultProps={{
 					titleText: 'Welcome to Remotion',
 					titleColor: 'black',
@@ -44,8 +57,8 @@ export const RemotionVideo: React.FC = (props) => {
 				component={Subtitle}
 				durationInFrames={100}
 				fps={30}
-				width={1920}
-				height={1080}
+				width={1080}
+				height={1920}
 			/>
 		</>
 	);

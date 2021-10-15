@@ -9,18 +9,11 @@ const GradientBackground: React.FC = () => {
 			style={{
 				width: config.width,
 				height: config.height,
-				position: 'absolute',
-				top: 0,
 			}}
 		>
-			<svg
-				viewBox={`0 0 ${config.width} ${config.height}`}
-				style={{
-					position: 'absolute',
-				}}
-			>
+			<svg viewBox={`0 0 ${config.width} ${config.height}`}>
 				<defs>
-					<linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+					<linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="0%">
 						<stop offset="0%" stopColor={COLOR_1} />
 						<stop offset="100%" stopColor={COLOR_2} />
 					</linearGradient>

@@ -1,6 +1,6 @@
 import {Composition} from 'remotion';
 import {HelloWorld} from './HelloWorld';
-import {Logo} from './HelloWorld/Logo';
+import BackGround from './HelloWorld/BackGround';
 import {Subtitle} from './HelloWorld/Subtitle';
 import {Title} from './HelloWorld/Title';
 
@@ -20,8 +20,8 @@ export const RemotionVideo: React.FC = () => {
 				}}
 			/>
 			<Composition
-				id="Logo"
-				component={Logo}
+				id="BackGround"
+				component={BackGround}
 				durationInFrames={200}
 				fps={30}
 				width={1920}
