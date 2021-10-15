@@ -6,6 +6,7 @@ dist
 out
 out.mp4
 publish.jpeg
+/img/*
 
 .env
 cookies.json
