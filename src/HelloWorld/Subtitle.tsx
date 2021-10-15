@@ -16,15 +16,15 @@ export const Subtitle: React.FC = () => {
 				opacity,
 			}}
 		>
-			Edit{' '}
+			Tiempo en{' '}
 			<code
 				style={{
 					color: COLOR_1,
 				}}
 			>
-				src/Video.tsx
+				Irun
 			</code>{' '}
-			and save to reload.
+			de hoy.
 		</div>
 	);
 };

@@ -12,6 +12,7 @@ import {
 	getCompositions,
 	renderFrames,
 	stitchFramesToVideo,
+	renderStill,
 } from '@remotion/renderer';
 import fs from 'fs';
 import os from 'os';
@@ -23,13 +24,29 @@ import {random} from 'remotion';
 import Instagram from 'instagram-web-api';
 // @ts-ignore
 import FileCookieStore from 'tough-cookie-filestore2';
+import {getWeater} from './services/weather';
 
 require('dotenv').config();
+
+const init = async () => {
+	// data.hourly // hourly weather
+	// data.daily[0]; // general info
+	// data.daily[0].weather; // general icon
+	try {
+		const data = await getWeater({lat: 43.339, lon: -1.7894});
+		console.log({hours: data.hourly});
+		console.log({hours: data.daily[0].weather});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+// init();
 
 const compositionId = 'HelloWorld';
 
 // Every 30s, we'll render a new video.
-cron.schedule('*/60 * * * * *', async () => {
+cron.schedule('*/30 * * * * *', async () => {
 	try {
 		console.log('crooon');
 		const cookieStore = new FileCookieStore('./cookies.json');
@@ -45,13 +62,13 @@ cron.schedule('*/60 * * * * *', async () => {
 			}
 		);
 
-		const params = {titleText: 'Hello, World', titleColor: 'yellow'};
+		const params = {titleText: 'El tiempo!', titleColor: 'tomato'};
 
-		const randomColor = '#' + Math.floor(random(null) * 16777215).toString(16);
+		// const randomColor = '#' + Math.floor(random(null) * 16777215).toString(16);
 
-		console.log('randomColor', randomColor);
+		// console.log('randomColor', randomColor);
 
-		params.titleColor = randomColor;
+		// params.titleColor = randomColor;
 
 		const bundled = await bundle(path.join(__dirname, './src/index.tsx'));
 		const comps = await getCompositions(bundled, {inputProps: params});
@@ -81,7 +98,27 @@ cron.schedule('*/60 * * * * *', async () => {
 			imageFormat: 'jpeg',
 		});
 
-		const finalOutput = path.join(__dirname, 'out.png');
+		const mainImgFolder = `${__dirname}/img/`;
+		const finalOutputVideo = path.join(mainImgFolder, 'out.mp4');
+		const finalOutputImg = path.join(mainImgFolder, 'publish.jpeg');
+
+		await renderStill({
+			composition: video,
+			webpackBundle: bundled,
+			output: finalOutputImg,
+			onError: (error) => {
+				console.error(
+					'The following error occured when rendering the still: ',
+					error.message
+				);
+			},
+			frame: 80,
+			inputProps: params,
+			imageFormat: 'jpeg',
+		});
+
+		console.log({finalOutputImg});
+		console.log('Image rendered!');
 
 		await stitchFramesToVideo({
 			dir: tmpDir,
@@ -89,23 +126,28 @@ cron.schedule('*/60 * * * * *', async () => {
 			fps: video.fps,
 			height: video.height,
 			width: video.width,
-			outputLocation: finalOutput,
+			outputLocation: finalOutputVideo,
 			imageFormat: 'jpeg',
 			assetsInfo,
 		});
 
-		console.log({finalOutput});
-
+		console.log({finalOutputVideo});
 		console.log('Video rendered!');
 
 		console.log('Uploading to instagram');
 
 		const instagramPostFunction = async () => {
-			await client.uploadPhoto({
-				photo: finalOutput,
-				caption: 'Tiempo Irun',
-				post: 'feed',
-			});
+			try {
+				await client.uploadPhoto({
+					photo: finalOutputImg, // Upload a photo to Instagram. Only jpeg images allowed.
+					caption: 'Tiempo Irun',
+					post: 'story', // feed or story
+				});
+
+				console.log('File uploaded!');
+			} catch (error) {
+				console.log({error});
+			}
 		};
 
 		// Loging on instagram
@@ -136,7 +178,7 @@ cron.schedule('*/60 * * * * *', async () => {
 					}
 				);
 
-				newClient
+				await newClient
 					.login()
 					.then(() => {
 						console.log('Login successful!');
