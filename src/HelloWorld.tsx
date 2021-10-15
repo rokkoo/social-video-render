@@ -7,7 +7,9 @@ import {Title} from './HelloWorld/Title';
 export const HelloWorld: React.FC<{
 	titleText: string;
 	titleColor: string;
-}> = ({titleText, titleColor}) => {
+	temperature: number;
+	weather: string;
+}> = ({titleText, titleColor, temperature, weather}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 
@@ -29,14 +31,14 @@ export const HelloWorld: React.FC<{
 					<BackGround />
 				</Sequence>
 				<Sequence from={0} durationInFrames={videoConfig.durationInFrames}>
-					<Header />
+					<Header temperature={temperature} weather={weather} />
 				</Sequence>
-				<Sequence from={transitionStart + 10}>
+				{/* <Sequence from={transitionStart + 10}>
 					<Title titleText={titleText} titleColor={titleColor} />
 				</Sequence>
 				<Sequence from={transitionStart + 50}>
 					<Subtitle />
-				</Sequence>
+				</Sequence> */}
 			</div>
 		</div>
 	);

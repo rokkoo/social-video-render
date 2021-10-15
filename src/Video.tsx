@@ -17,6 +17,8 @@ export const RemotionVideo: React.FC = () => {
 				defaultProps={{
 					titleText: 'Welcome to Remotion',
 					titleColor: 'black',
+					temperature: 15.6,
+					weather: 'sunny',
 				}}
 			/>
 			<Composition

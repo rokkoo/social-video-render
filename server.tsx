@@ -39,7 +39,12 @@ cron.schedule('*/30 * * * * *', async () => {
 	try {
 		console.log('Story crooon');
 
-		const params = {titleText: 'El tiempo story!', titleColor: 'tomato'};
+		const params = {
+			titleText: 'El tiempo story!',
+			titleColor: 'tomato',
+			temperature: 23.6,
+			weather: 'Rain',
+		};
 
 		const bundled = await bundle(path.join(__dirname, './src/index.story.tsx'));
 		const comps = await getCompositions(bundled, {inputProps: params});
@@ -82,7 +87,12 @@ cron.schedule('*/40 * * * * *', async () => {
 	try {
 		console.log('Feed crooon');
 
-		const params = {titleText: 'El tiempo feed!', titleColor: 'tomato'};
+		const params = {
+			titleText: 'El tiempo feed!',
+			titleColor: 'tomato',
+			temperature: 19.6,
+			weather: 'Clowdy',
+		};
 
 		const bundled = await bundle(path.join(__dirname, './src/index.tsx'));
 		const comps = await getCompositions(bundled, {inputProps: params});

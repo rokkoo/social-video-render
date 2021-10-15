@@ -1,7 +1,12 @@
 import {Img, useVideoConfig} from 'remotion';
 import svg from './static/cloudy-day-3.svg';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+	temperature: number;
+	weather: string;
+}
+
+const Header: React.FC<HeaderProps> = ({temperature, weather}) => {
 	const {width, height} = useVideoConfig();
 
 	return (
@@ -30,23 +35,22 @@ const Header: React.FC = () => {
 						fontFamily: 'Helvetica, Arial',
 						fontSize: 140,
 						color: 'white',
-						textShadow: '2px 3px 120px #4895ef',
+						textShadow: '0px 0px 150px #343a40',
 						lineHeight: 0,
 					}}
 				>
-					20°
+					{temperature.toString().replace('.', ',')}°
 				</h1>
 				<h1
 					style={{
 						fontFamily: 'Helvetica, Arial',
 						fontSize: 60,
 						color: 'white',
-						textShadow: '2px 3px 120px #4895ef',
 						lineHeight: 0,
-						fontWeight: 100,
+						fontWeight: 400,
 					}}
 				>
-					Clowdy
+					{weather}
 				</h1>
 			</div>
 		</div>
